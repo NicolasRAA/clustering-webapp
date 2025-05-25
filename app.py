@@ -76,7 +76,7 @@ def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_met
 # Интерфейс Gradio
 with gr.Blocks(title="Кластеризация и визуализация") as demo:
     gr.Image("assets/logo.png", show_label=False, container=False, height=100)
-    gr.Markdown("##Визуализация кластеризации (KMeans и иерархической)")
+    gr.Markdown("Визуализация кластеризации (KMeans и иерархической)")
 
     with gr.Row():
         dataset_choice = gr.Radio(
