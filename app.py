@@ -14,6 +14,7 @@ from analysis.visualization import (
     plot_true_labels
 )
 
+# Предустановленные датасеты
 PREDEFINED_DATASETS = {
     "Wine": "datasets/wine.csv",
     "Wholesale": "datasets/wholesale.csv",
@@ -28,14 +29,13 @@ def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_met
             raise gr.Error("Пожалуйста, загрузите CSV-файл.")
         df = load_dataset(uploaded_file)
 
-    # Попытка найти целевую переменную (target)
+    # Поиск меток
     label_col = None
     for col in df.columns:
         if col.lower() in ["target", "label", "class"]:
             label_col = col
             break
 
-    # Предобработка
     df_clean = clean_data(df)
     df_scaled, _ = scale_data(df_clean)
 
@@ -47,13 +47,9 @@ def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_met
         df_pca = df_scaled.copy()
         pca_text = "PCA не применялся (данные уже двумерные или отключено)"
 
-    # График истинных меток (если есть)
     fig_true = plot_true_labels(df_pca, df[label_col]) if label_col else None
-
-    # Распределение
     fig_raw = plot_raw_distribution(df_pca)
 
-    # KMeans
     labels_km, model_km = run_kmeans(df_scaled, n_clusters)
     fig_kmeans = plot_kmeans_clusters(df_pca, labels_km, model_km)
     fig_silhouette = plot_silhouette(df_scaled, labels_km)
@@ -61,7 +57,6 @@ def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_met
     inertia = calculate_inertia(model_km)
     silhouette_val = calculate_silhouette_score(df_scaled, labels_km)
 
-    # Agglomerative
     labels_hier, _ = run_hierarchical(df_scaled, n_clusters, linkage_method)
     fig_hier = plot_hierarchical_clusters(df_pca, labels_hier)
     fig_dendro = plot_dendrogram(df_scaled, method=linkage_method)
@@ -78,8 +73,10 @@ def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_met
         f"Silhouette Score: {round(silhouette_val, 3)}"
     )
 
+# Интерфейс Gradio
 with gr.Blocks(title="Кластеризация и визуализация") as demo:
-    gr.Markdown("Визуализация кластеризации (KMeans и иерархической)")
+    gr.Image("assets/logo.png", show_label=False, container=False, height=100)
+    gr.Markdown("##Визуализация кластеризации (KMeans и иерархической)")
 
     with gr.Row():
         dataset_choice = gr.Radio(
@@ -92,7 +89,11 @@ with gr.Blocks(title="Кластеризация и визуализация") a
     with gr.Row():
         use_pca = gr.Checkbox(label="Применить PCA (снижение до 2D)", value=True)
         n_clusters = gr.Slider(2, 10, value=3, step=1, label="Количество кластеров (k)")
-        linkage_method = gr.Dropdown(choices=["ward", "complete", "average", "single"], label="Метод связи (иерархическая)", value="ward")
+        linkage_method = gr.Dropdown(
+            choices=["ward", "complete", "average", "single"],
+            label="Метод связи (иерархическая)",
+            value="ward"
+        )
 
     run_button = gr.Button("▶️ Выполнить кластеризацию")
 
