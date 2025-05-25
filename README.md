@@ -21,7 +21,7 @@
 
 Для запуска проекта выполните следующие шаги:
 
-```
+```bash
 # Клонируйте репозиторий
 git clone https://github.com/username/clustering-webapp.git
 cd clustering-webapp
@@ -32,6 +32,9 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 
 # Установите зависимости
 pip install -r requirements.txt
+
+# Если соединение с pypi.org нестабильно, используйте зеркало:
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # (Опционально) Сгенерируйте встроенные наборы данных
 python generate_datasets.py
@@ -45,12 +48,25 @@ python app.py
 <details>
   <summary>Пример вывода в терминале</summary>
 
-```
+```bash
 (venv) $ python app.py
 Running on local URL:  http://127.0.0.1:7860/
 ```
 
 </details>
+
+<details>
+  <summary>Рекомендованные параметры для наборов данных</summary>
+
+| Набор данных       | Рекомендуемое количество кластеров (k) | Метод связи (иерархическая кластеризация) | Комментарий                                           |
+|--------------------|-----------------------------------------|--------------------------------------------|--------------------------------------------------------|
+| Wine               | 3                                       | `ward`                                     | Соответствует 3 классам вина (chemical composition)    |
+| Wholesale          | 4–6                                     | `average`                                  | Покупатели с разным профилем потребления               |
+| Mall Customers     | 4–5                                     | `complete`                                 | Сегментация по доходу и индексу расходов               |
+
+> Если вы загружаете собственный `.csv` файл, выберите значение `k`, исходя из понимания структуры данных и используйте график Elbow или силуэт-анализ для обоснования выбора.
+</details>
+
 
 ## Модули
 
