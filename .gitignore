@@ -21,3 +21,6 @@ Thumbs.db
 
 # Archivos de VSCode
 .vscode/
+
+# Carpeta con los resultados
+results/
