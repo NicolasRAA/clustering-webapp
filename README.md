@@ -1,8 +1,5 @@
 # Проект кластеризации на Python
 
-![Build Status](https://img.shields.io/github/workflow/status/username/clustering-webapp/CI)
-![Version](https://img.shields.io/github/v/tag/username/clustering-webapp)
-
 ## Оглавление
 1. [Введение](#введение)
 2. [Использование](#использование)
@@ -72,6 +69,4 @@ Running on local URL:  http://127.0.0.1:7860/
 - Используемые библиотеки: `scikit-learn`, `pandas`, `matplotlib`, `seaborn`, `gradio`
 - Поддерживается загрузка пользовательского `.csv` файла
 - Поддержка визуализации PCA и центроидов k-means
-- Все функции написаны модульно и легко расширяются
-
-Благодарим за использование проекта. Все отзывы приветствуются.
+- Все функции написаны модульно и легко расширяются)
