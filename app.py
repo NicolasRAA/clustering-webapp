@@ -10,10 +10,10 @@ from analysis.visualization import (
     plot_hierarchical_clusters,
     plot_dendrogram,
     plot_elbow,
-    plot_silhouette
+    plot_silhouette,
+    plot_true_labels
 )
 
-# Словарь с предопределёнными наборами данных
 PREDEFINED_DATASETS = {
     "Wine": "datasets/wine.csv",
     "Wholesale": "datasets/wholesale.csv",
@@ -21,7 +21,6 @@ PREDEFINED_DATASETS = {
 }
 
 def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_method):
-    # 1. Загрузка данных
     if dataset_choice != "Загрузить свой CSV":
         df = load_dataset(PREDEFINED_DATASETS[dataset_choice])
     else:
@@ -29,11 +28,18 @@ def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_met
             raise gr.Error("Пожалуйста, загрузите CSV-файл.")
         df = load_dataset(uploaded_file)
 
-    # 2. Предобработка
+    # Попытка найти целевую переменную (target)
+    label_col = None
+    for col in df.columns:
+        if col.lower() in ["target", "label", "class"]:
+            label_col = col
+            break
+
+    # Предобработка
     df_clean = clean_data(df)
     df_scaled, _ = scale_data(df_clean)
 
-    # 3. PCA (если выбрано)
+    # PCA
     if use_pca and df_scaled.shape[1] > 2:
         df_pca, pca_model, variance_ratio = apply_pca(df_scaled, n_components=2)
         pca_text = f"Объяснённая дисперсия PCA: {round(sum(variance_ratio)*100, 2)}%"
@@ -41,10 +47,13 @@ def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_met
         df_pca = df_scaled.copy()
         pca_text = "PCA не применялся (данные уже двумерные или отключено)"
 
-    # 4. Визуализация исходного распределения
+    # График истинных меток (если есть)
+    fig_true = plot_true_labels(df_pca, df[label_col]) if label_col else None
+
+    # Распределение
     fig_raw = plot_raw_distribution(df_pca)
 
-    # 5. KMeans
+    # KMeans
     labels_km, model_km = run_kmeans(df_scaled, n_clusters)
     fig_kmeans = plot_kmeans_clusters(df_pca, labels_km, model_km)
     fig_silhouette = plot_silhouette(df_scaled, labels_km)
@@ -52,14 +61,14 @@ def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_met
     inertia = calculate_inertia(model_km)
     silhouette_val = calculate_silhouette_score(df_scaled, labels_km)
 
-    # 6. Agglomerative Clustering
+    # Agglomerative
     labels_hier, _ = run_hierarchical(df_scaled, n_clusters, linkage_method)
     fig_hier = plot_hierarchical_clusters(df_pca, labels_hier)
     fig_dendro = plot_dendrogram(df_scaled, method=linkage_method)
 
     return (
         pca_text,
-        fig_raw,
+        fig_true if fig_true else fig_raw,
         fig_kmeans,
         fig_hier,
         fig_dendro,
@@ -69,7 +78,6 @@ def run_pipeline(dataset_choice, uploaded_file, use_pca, n_clusters, linkage_met
         f"Silhouette Score: {round(silhouette_val, 3)}"
     )
 
-# Интерфейс Gradio
 with gr.Blocks(title="Кластеризация и визуализация") as demo:
     gr.Markdown("##Визуализация кластеризации (KMeans и иерархической)")
 
@@ -89,7 +97,7 @@ with gr.Blocks(title="Кластеризация и визуализация") a
     run_button = gr.Button("▶️ Выполнить кластеризацию")
 
     pca_output = gr.Textbox(label="Информация о PCA")
-    fig1 = gr.Plot(label="Распределение после PCA")
+    fig1 = gr.Plot(label="Распределение (или реальные классы)")
     fig2 = gr.Plot(label="Кластеры KMeans")
     fig3 = gr.Plot(label="Кластеры иерархические")
     fig4 = gr.Plot(label="Дендрограмма")
