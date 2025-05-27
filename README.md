@@ -24,7 +24,7 @@
 
 ```bash
 # Клонируйте репозиторий
-git clone https://github.com/username/clustering-webapp.git
+git clone https://github.com/NicolasRAA/clustering-webapp.git
 cd clustering-webapp
 
 # Создайте виртуальное окружение
