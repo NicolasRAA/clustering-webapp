@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/9fb4dfbf-44ed-443c-a10a-8b4966dac83f)# Проект кластеризации на Python
+# Проект кластеризации на Python
 
 ## Оглавление
 1. [Введение](#введение)
